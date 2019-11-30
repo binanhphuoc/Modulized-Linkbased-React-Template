@@ -8,8 +8,10 @@ import {
   grayColor,
   defaultFont
 } from "assets/jss/material-dashboard-react.js";
+import tooltipStyle from "assets/jss/material-dashboard-react/tooltipStyle.js";
 
 const tableStyle = theme => ({
+  ...tooltipStyle,
   warningTableHeader: {
     color: warningColor[0]
   },

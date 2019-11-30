@@ -36,39 +36,80 @@ import UpgradeToPro from "views/UpgradeToPro/UpgradeToPro.js";
 // core components/views for RTL layout
 import RTLPage from "views/RTLPage/RTLPage.js";
 
-const dashboardRoutes = {
-  "/dashboard": {
-    name: "Dashboard",
-    rtlName: "لوحة القيادة",
-    icon: Dashboard,
+const adminRoutes = {
+  "/knowledgebase": {
     component: DashboardPage,
-    layout: "/admin",
     sidebar: [
-      "/dashboard",
-      "/concepts",
-      "/user"
+      {
+        name: "General Information",
+        path: "/knowledgebase",
+        icon: Dashboard
+      },
+      {
+        name: "Concepts",
+        path: "/knowledgebase/concepts",
+        icon: "content_paste"
+      }
     ]
   },
-  "/user": {
-    name: "User Profile",
-    rtlName: "ملف تعريفي للمستخدم",
-    icon: Person,
-    component: UserProfile,
-    layout: "/admin",
-  },
-  "/concepts": {
-    name: "Concept List",
-    rtlName: "قائمة الجدول",
-    icon: "content_paste",
+  "/knowledgebase/concepts": {
     component: ConceptList,
-    layout: "/admin",
+    sidebar: [
+      {
+        name: "General Information",
+        path: "/knowledgebase",
+        icon: Dashboard
+      },
+      {
+        name: "Concepts",
+        path: "/knowledgebase/concepts",
+        icon: "content_paste"
+      }
+    ]
   },
-  "/typography": {
-    name: "Typography",
-    rtlName: "طباعة",
-    icon: LibraryBooks,
-    component: Typography,
-    layout: "/admin",
+  // "/user": {
+  //   name: "User Profile",
+  //   rtlName: "ملف تعريفي للمستخدم",
+  //   icon: Person,
+  //   component: UserProfile,
+  //   layout: "/admin",
+  // },
+  // "/typography": {
+  //   name: "Typography",
+  //   rtlName: "طباعة",
+  //   icon: LibraryBooks,
+  //   component: Typography,
+  //   layout: "/admin",
+  // },
+  "/knowledgebase/concepts/:id": {
+    component: UserProfile,
+    sidebar: [
+      {
+        name: "General Information",
+        path: "/knowledgebase/concepts/:id",
+        icon: Dashboard
+      },
+      {
+        name: "Attributes",
+        path: "/knowledgebase/concepts/:id/attributes",
+        icon: BubbleChart
+      },
+    ]
+  },
+  "/knowledgebase/concepts/:id/attributes": {
+    component: Icons,
+    sidebar: [
+      {
+        name: "General Information",
+        path: "/knowledgebase/concepts/:id",
+        icon: Dashboard
+      },
+      {
+        name: "Attributes",
+        path: "/knowledgebase/concepts/:id/attributes",
+        icon: BubbleChart
+      },
+    ]
   },
   // {
   //   path: "/icons",
@@ -112,4 +153,4 @@ const dashboardRoutes = {
   // }
 };
 
-export default dashboardRoutes;
+export default adminRoutes;

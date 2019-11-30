@@ -1,5 +1,6 @@
 import React from "react";
-import { Switch, Route, Redirect, useParams } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { matchPath } from "react-router";
 // creates a beautiful scrollbar
 import PerfectScrollbar from "perfect-scrollbar";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
@@ -19,23 +20,21 @@ import bgImage from "assets/img/sidebar-2.jpg";
 import logo from "assets/img/reactlogo.png";
 
 let ps;
+const layout = "/admin"
 
 const switchRoutes = () => (
   <Switch>
     {Object.keys(routes).map((key, index) => {
       const prop = routes[key];
-      if (prop.layout === "/admin") {
-        return (
-          <Route
-            path={prop.layout + key}
-            component={prop.component}
-            key={index}
-          />
-        );
-      }
-      return null;
+      return (
+        <Route
+          exact path={`${layout}${key}`}
+          component={prop.component}
+          key={index}
+        />
+      );
     })}
-    <Redirect from="/admin" to="/admin/dashboard" />
+    <Redirect from={layout} to={`${layout}/knowledgebase`} />
   </Switch>
 );
 
@@ -68,7 +67,7 @@ export default function Admin({ ...rest }) {
     setMobileOpen(!mobileOpen);
   };
   const getRoute = () => {
-    return window.location.pathname !== "/admin/maps";
+    return window.location.pathname !== `${layout}/maps`;
   };
   const resizeFunction = () => {
     if (window.innerWidth >= 960) {
@@ -77,18 +76,37 @@ export default function Admin({ ...rest }) {
   };
   const getSidebarRoutes = () => {
     let path = window.location.pathname;
-    path = path.replace("/admin", "");
-    let { sidebar:sidebarKeys } = routes[path];
-    if (!sidebarKeys) {
-      return Object.entries(routes).map(([key, value]) => {
-        value.path = key;
-        return value;
+    let params;
+    let matchedRoute  = Object.keys(routes).find(key => {
+      const matched = matchPath(path, {
+        path: layout + key,
+        exact: true,
+        strict: false
       });
-    }
-    let sidebarRoutes = sidebarKeys.map(key => {
-      let res = routes[key];
-      res.path = key;
-      return res;
+      if (matched !== null) {
+        params = matched.params;
+      }
+      return matched !== null;
+    });
+    if (!matchedRoute)
+      return [];
+    let { sidebar:sidebarItems } = routes[matchedRoute];
+    // if (!sidebarItems) {
+    //   return Object.entries(routes).map(([routePath, routeDetail]) => {
+    //     Object.entries(params).map(([paramKey, paramValue]) => {
+    //       routePath = routePath.replace(`:${paramKey}`, paramValue);
+    //     })
+    //     routeDetail.path = routePath;
+    //     return routeDetail;
+    //   });
+    // }
+    let sidebarRoutes = sidebarItems.map(item => {
+      Object.entries(params).map(([paramKey, paramValue]) => {
+        item.path = item.path.replace(`:${paramKey}`, paramValue);
+        return item.path;
+      })
+      item.layout = layout;
+      return item;
     })
     return sidebarRoutes;
   };
@@ -131,7 +149,6 @@ export default function Admin({ ...rest }) {
         {/* On the /maps route we want the map to be on full screen - this is not possible if the content and conatiner classes are present because they have some paddings which would make the map smaller */}
         {getRoute() ? (
           <div className={classes.content}>
-            <div>Movement / </div>
             <div className={classes.container}>{switchRoutes()}</div>
           </div>
         ) : (
