@@ -73,6 +73,12 @@ const tableStyle = theme => ({
     display: "table-row",
     outline: "none",
     verticalAlign: "middle"
+  },
+  idLink: {
+    color: "primary",
+    '&:hover': {
+      color: "yellow",
+    },
   }
 });
 

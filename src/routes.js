@@ -27,7 +27,7 @@ import Language from "@material-ui/icons/Language";
 // core components/views for Admin layout
 import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
-import ConceptList from "views/ConceptList/ConceptList.js";
+import Knowledgebase from "views/Knowledgebase";
 import Typography from "views/Typography/Typography.js";
 import Icons from "views/Icons/Icons.js";
 import Maps from "views/Maps/Maps.js";
@@ -36,36 +36,20 @@ import UpgradeToPro from "views/UpgradeToPro/UpgradeToPro.js";
 // core components/views for RTL layout
 import RTLPage from "views/RTLPage/RTLPage.js";
 
-const adminRoutes = {
-  "/knowledgebase": {
-    component: DashboardPage,
-    sidebar: [
-      {
-        name: "General Information",
-        path: "/knowledgebase",
-        icon: Dashboard
-      },
-      {
-        name: "Concepts",
-        path: "/knowledgebase/concepts",
-        icon: "content_paste"
-      }
-    ]
+const adminRoutes = [
+  {
+    name: "Knowledgebase",
+    component: Knowledgebase,
+    icon: Dashboard,
+    path: "/knowledgebase",
+    layout: "/admin"
   },
-  "/knowledgebase/concepts": {
-    component: ConceptList,
-    sidebar: [
-      {
-        name: "General Information",
-        path: "/knowledgebase",
-        icon: Dashboard
-      },
-      {
-        name: "Concepts",
-        path: "/knowledgebase/concepts",
-        icon: "content_paste"
-      }
-    ]
+  {
+    name: "Inference Engine",
+    component: UserProfile,
+    icon: Person,
+    path: "/inference-engine",
+    layout: "/admin"
   },
   // "/user": {
   //   name: "User Profile",
@@ -81,36 +65,6 @@ const adminRoutes = {
   //   component: Typography,
   //   layout: "/admin",
   // },
-  "/knowledgebase/concepts/:id": {
-    component: UserProfile,
-    sidebar: [
-      {
-        name: "General Information",
-        path: "/knowledgebase/concepts/:id",
-        icon: Dashboard
-      },
-      {
-        name: "Attributes",
-        path: "/knowledgebase/concepts/:id/attributes",
-        icon: BubbleChart
-      },
-    ]
-  },
-  "/knowledgebase/concepts/:id/attributes": {
-    component: Icons,
-    sidebar: [
-      {
-        name: "General Information",
-        path: "/knowledgebase/concepts/:id",
-        icon: Dashboard
-      },
-      {
-        name: "Attributes",
-        path: "/knowledgebase/concepts/:id/attributes",
-        icon: BubbleChart
-      },
-    ]
-  },
   // {
   //   path: "/icons",
   //   name: "Icons",
@@ -151,6 +105,6 @@ const adminRoutes = {
   //   component: UpgradeToPro,
   //   layout: "/admin"
   // }
-};
+];
 
 export default adminRoutes;

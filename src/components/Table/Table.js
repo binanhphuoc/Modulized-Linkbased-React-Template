@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import { makeStyles } from "@material-ui/core/styles";
+import Link from '@material-ui/core/Link';
+import Typography from '@material-ui/core/Typography';
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
@@ -9,6 +11,7 @@ import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from '@material-ui/core/IconButton';
+import Button from "components/CustomButtons/Button.js";
 // core components
 import styles from "assets/jss/material-dashboard-react/components/tableStyle.js";
 
@@ -16,7 +19,7 @@ const useStyles = makeStyles(styles);
 
 export default function CustomTable(props) {
   const classes = useStyles();
-  const { tableHead, tableData, tableHeaderColor, tableActions, onItemClick, onActionClick, showId, editMode } = props;
+  const { tableHead, tableData, tableHeaderColor, tableActions, onRowClick, onActionClick, onIdClick, showId, editMode, hover, selectedRows } = props;
   return (
     <div className={classes.tableResponsive}>
       <Table className={classes.table}>
@@ -53,13 +56,16 @@ export default function CustomTable(props) {
               <TableRow 
                 key={key} 
                 className={classes.tableBodyRow}
-                hover={onItemClick !== null && !editMode}
-                onClick={() => { !editMode && onItemClick && onItemClick(key) }}
+                hover={hover}
+                selected={selectedRows.includes(key)}
+                onClick={() => { !editMode && onRowClick && onRowClick(key) }}
               >
                 { showId ? <TableCell 
                   className={classes.tableCell}
                   key="_id">
-                    {key}
+                    <Link href="" variant="body2" onClick={() => { onIdClick && onIdClick(key) }}>
+                      {key}
+                    </Link>
                 </TableCell> : null}
                 {prop.map((prop, key) => {
                   return (
@@ -100,8 +106,10 @@ export default function CustomTable(props) {
 
 CustomTable.defaultProps = {
   tableHeaderColor: "gray",
-  onItemClick: null,
-  onActionClick: null
+  onRowClick: null,
+  onActionClick: null,
+  onIdClick: null,
+  selectedRows: []
 };
 
 CustomTable.propTypes = {
@@ -122,8 +130,11 @@ CustomTable.propTypes = {
       icon: PropTypes.object.isRequired
     }).isRequired
   ),
-  onItemClick: PropTypes.func,
+  onRowClick: PropTypes.func,
   onActionClick: PropTypes.func,
+  onIdClick: PropTypes.func,
   showId: PropTypes.bool,
-  editMode: PropTypes.bool
+  editMode: PropTypes.bool,
+  hover: PropTypes.bool,
+  selectedRows: PropTypes.arrayOf(PropTypes.string)
 };

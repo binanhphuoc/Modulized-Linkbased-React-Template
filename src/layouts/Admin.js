@@ -1,6 +1,6 @@
 import React from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
-import { matchPath } from "react-router";
+//import { matchPath } from "react-router";
 // creates a beautiful scrollbar
 import PerfectScrollbar from "perfect-scrollbar";
 import "perfect-scrollbar/css/perfect-scrollbar.css";
@@ -24,12 +24,12 @@ const layout = "/admin"
 
 const switchRoutes = () => (
   <Switch>
-    {Object.keys(routes).map((key, index) => {
-      const prop = routes[key];
+    {routes.map((prop, index) => {
+      const { layout, path, component } = prop;
       return (
         <Route
-          exact path={`${layout}${key}`}
-          component={prop.component}
+          path={`${layout}${path}`}
+          component={component}
           key={index}
         />
       );
@@ -48,7 +48,7 @@ export default function Admin({ ...rest }) {
   // states and functions
   const [image, setImage] = React.useState(bgImage);
   const [color, setColor] = React.useState("blue");
-  const [fixedClasses, setFixedClasses] = React.useState("dropdown show");
+  const [fixedClasses, setFixedClasses] = React.useState("dropdown");
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const handleImageClick = image => {
     setImage(image);
@@ -75,40 +75,32 @@ export default function Admin({ ...rest }) {
     }
   };
   const getSidebarRoutes = () => {
-    let path = window.location.pathname;
-    let params;
-    let matchedRoute  = Object.keys(routes).find(key => {
-      const matched = matchPath(path, {
-        path: layout + key,
-        exact: true,
-        strict: false
-      });
-      if (matched !== null) {
-        params = matched.params;
-      }
-      return matched !== null;
-    });
-    if (!matchedRoute)
-      return [];
-    let { sidebar:sidebarItems } = routes[matchedRoute];
-    // if (!sidebarItems) {
-    //   return Object.entries(routes).map(([routePath, routeDetail]) => {
-    //     Object.entries(params).map(([paramKey, paramValue]) => {
-    //       routePath = routePath.replace(`:${paramKey}`, paramValue);
-    //     })
-    //     routeDetail.path = routePath;
-    //     return routeDetail;
+    return routes;
+    // let path = window.location.pathname;
+    // let params;
+    // let matchedRoute  = Object.keys(routes).find(key => {
+    //   const matched = matchPath(path, {
+    //     path: layout + key,
+    //     exact: true,
+    //     strict: false
     //   });
-    // }
-    let sidebarRoutes = sidebarItems.map(item => {
-      Object.entries(params).map(([paramKey, paramValue]) => {
-        item.path = item.path.replace(`:${paramKey}`, paramValue);
-        return item.path;
-      })
-      item.layout = layout;
-      return item;
-    })
-    return sidebarRoutes;
+    //   if (matched !== null) {
+    //     params = matched.params;
+    //   }
+    //   return matched !== null;
+    // });
+    // if (!matchedRoute)
+    //   return [];
+    // let { sidebar:sidebarItems } = routes[matchedRoute];
+    // let sidebarRoutes = sidebarItems.map(item => {
+    //   Object.entries(params).map(([paramKey, paramValue]) => {
+    //     item.path = item.path.replace(`:${paramKey}`, paramValue);
+    //     return item.path;
+    //   })
+    //   item.layout = layout;
+    //   return item;
+    // })
+    // return sidebarRoutes;
   };
   // initialize and destroy the PerfectScrollbar plugin
   React.useEffect(() => {
