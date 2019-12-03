@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 // @material-ui/core components
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
 import Table from "@material-ui/core/Table";
@@ -15,93 +15,93 @@ import Button from "components/CustomButtons/Button.js";
 // core components
 import styles from "assets/jss/material-dashboard-react/components/tableStyle.js";
 
-const useStyles = makeStyles(styles);
+class CustomTable extends React.Component {
 
-export default function CustomTable(props) {
-  const classes = useStyles();
-  const { tableHead, tableData, tableHeaderColor, tableActions, onRowClick, onActionClick, onIdClick, showId, editMode, hover, selectedRows } = props;
-  return (
-    <div className={classes.tableResponsive}>
-      <Table className={classes.table}>
-        {tableHead !== undefined ? (
-          <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
-            <TableRow className={classes.tableHeadRow}>
-              { showId ? <TableCell 
-                className={classes.tableCell + " " + classes.tableHeadCell}
-                key="_id">
-                  ID
-              </TableCell> : null}
-              {tableHead.map((prop, key) => {
-                return (
-                  <TableCell
-                    className={classes.tableCell + " " + classes.tableHeadCell}
-                    key={key}
-                  >
-                    {prop}
-                  </TableCell>
-                );
-              })}
-              {editMode ? <TableCell
-                className={classes.tableCell + " " + classes.tableHeadCell}
-                key="action"
-              >
-                Actions
-              </TableCell> : null}
-            </TableRow>
-          </TableHead>
-        ) : null}
-        <TableBody>
-          {Object.entries(tableData).map(([key, prop]) => {
-            return (
-              <TableRow 
-                key={key} 
-                className={classes.tableBodyRow}
-                hover={hover}
-                selected={selectedRows.includes(key)}
-                onClick={() => { !editMode && onRowClick && onRowClick(key) }}
-              >
+  render() {
+    const { classes, tableHead, tableData, tableHeaderColor, tableActions, onRowClick, onActionClick, onIdClick, showId, editMode, hover, selectedRows } = this.props;
+    return (
+      <div className={classes.tableResponsive}>
+        <Table className={classes.table}>
+          {tableHead !== undefined ? (
+            <TableHead className={classes[tableHeaderColor + "TableHeader"]}>
+              <TableRow className={classes.tableHeadRow}>
                 { showId ? <TableCell 
-                  className={classes.tableCell}
+                  className={classes.tableCell + " " + classes.tableHeadCell}
                   key="_id">
-                    <Link href="" variant="body2" onClick={() => { onIdClick && onIdClick(key) }}>
-                      {key}
-                    </Link>
+                    ID
                 </TableCell> : null}
-                {prop.map((prop, key) => {
+                {tableHead.map((prop, key) => {
                   return (
-                    <TableCell className={classes.tableCell} key={key}>
+                    <TableCell
+                      className={classes.tableCell + " " + classes.tableHeadCell}
+                      key={key}
+                    >
                       {prop}
                     </TableCell>
                   );
                 })}
-                {editMode ?
-                <TableCell 
-                  style={{padding:0}}
+                {editMode ? <TableCell
+                  className={classes.tableCell + " " + classes.tableHeadCell}
                   key="action"
                 >
-                  {tableActions.map(action => {
-                    return (
-                      <Tooltip
-                        key={action.name}
-                        id="tooltip-top"
-                        title={action.name}
-                        placement="top"
-                        classes={{ tooltip: classes.tooltip }}
-                      >
-                        <IconButton onClick={() => {onActionClick && onActionClick(key, action.name)}}>
-                          <action.icon fontSize="small"/>
-                        </IconButton>
-                      </Tooltip>
-                    )
-                  })}
+                  Actions
                 </TableCell> : null}
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
-  );
+            </TableHead>
+          ) : null}
+          <TableBody>
+            {Object.entries(tableData).map(([key, prop]) => {
+              return (
+                <TableRow 
+                  key={key} 
+                  className={classes.tableBodyRow}
+                  hover={hover}
+                  selected={selectedRows.includes(key)}
+                  onClick={() => { !editMode && onRowClick && onRowClick(key) }}
+                >
+                  { showId ? <TableCell 
+                    className={classes.tableCell}
+                    key="_id">
+                      <Link href="" variant="body2" onClick={() => { onIdClick && onIdClick(key) }}>
+                        {key}
+                      </Link>
+                  </TableCell> : null}
+                  {prop.map((prop, key) => {
+                    return (
+                      <TableCell className={classes.tableCell} key={key}>
+                        {prop}
+                      </TableCell>
+                    );
+                  })}
+                  {editMode ?
+                  <TableCell 
+                    style={{padding:0}}
+                    key="action"
+                  >
+                    {tableActions.map(action => {
+                      return (
+                        <Tooltip
+                          key={action.name}
+                          id="tooltip-top"
+                          title={action.name}
+                          placement="top"
+                          classes={{ tooltip: classes.tooltip }}
+                        >
+                          <IconButton onClick={() => {onActionClick && onActionClick(key, action.name)}}>
+                            <action.icon fontSize="small"/>
+                          </IconButton>
+                        </Tooltip>
+                      )
+                    })}
+                  </TableCell> : null}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
 }
 
 CustomTable.defaultProps = {
@@ -138,3 +138,5 @@ CustomTable.propTypes = {
   hover: PropTypes.bool,
   selectedRows: PropTypes.arrayOf(PropTypes.string)
 };
+
+export default withStyles(styles)(CustomTable);

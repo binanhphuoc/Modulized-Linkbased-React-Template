@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import axios from "axios";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
@@ -17,7 +17,8 @@ import CardFooter from "components/Card/CardFooter.js";
 
 import CollectionView from "./CollectionView.js";
 import DetailView from "./DetailView.js";
-import models from "variables/models.js";
+import meta from "serializers/meta.js";
+import models from "serializers/models.js";
 
 import avatar from "assets/img/faces/marc.jpg";
 
@@ -49,41 +50,17 @@ class Knowledgebase extends React.Component {
     collectionHeader: [],
     collectionTitle: '',
     collectionDescription: '',
+    detailFields: [],
     editMode: false,
     selectedRow: null,
   }
+
   componentDidMount() {
     this._isMounted = true;
-
-    let model = ['',''];
-    let pathsToCall = ['',''];
-
-    // Retrieve links to call DB from path
-    let path = window.location.pathname.replace("/admin/knowledgebase","").replace(/^\/|\/$/g, '');
-    let pathTokens = path.split("/");
-    if (pathTokens[0] === "")
-      pathTokens[0] = "concepts";
-    for (let i = 0; i < pathTokens.length-1; i++) {
-      pathsToCall[0] = pathsToCall[0] + "/" + pathTokens[i];
-    }
-    pathsToCall[1] = pathsToCall[0] + "/" + pathTokens[pathTokens.length-1];
-    let detailIndex, collectionIndex;
-    if (pathTokens.length % 2 === 0) {
-      model[0] = pathTokens[pathTokens.length - 2];
-      model[1] = model[0];
-      collectionIndex = 0;
-      detailIndex = 1;
-    }
-    else {
-      model[0] = pathTokens.length >= 3 ? pathTokens[pathTokens.length - 3] : '';
-      model[1] = pathTokens[pathTokens.length - 1];
-      collectionIndex = 1;
-      detailIndex = 0;
-    }
-    model[0] = model[0].charAt(0).toUpperCase() + model[0].substring(1,model[0].length-1);
-    model[1] = model[1].charAt(0).toUpperCase() + model[1].substring(1,model[1].length-1);
-
-    axios.get("/api/solverapp/knowledgebase" + pathsToCall[collectionIndex])
+    if (window.location.pathname === "/admin/knowledgebase" || window.location.pathname === "/admin/knowledgebase/")
+      this.props.history.push("/admin/knowledgebase/concepts");
+    const { paths, model, detailIndex, collectionIndex } = meta();
+    axios.get("/api/solverapp/knowledgebase" + paths[collectionIndex])
     .then(collectionResults => {
       const modelName = model[collectionIndex];
       const attributes = models[modelName].filter(attribute => !attribute.hiddenInTable);
@@ -94,12 +71,33 @@ class Knowledgebase extends React.Component {
       // prevent setting state if component is unmounted
       if (this._isMounted) {
         this.setState({
-          isLoading: false,
           collectionData: formattedCollectionData,
           collectionHeader: attributes.map(attribute => attribute.label),
           collectionTitle: modelName+'s',
           collectionDescription: 'List of concepts of the knowledgebase'
         })
+      }
+    }).catch(error => {
+      console.log(error);
+    });
+    
+    paths[detailIndex] !== '' && axios.get("/api/solverapp/knowledgebase" + paths[detailIndex])
+    .then(detailResult => {
+      const modelName = model[detailIndex];
+      const editableFields = models[modelName].filter(attribute => !attribute.isCollection)
+        .map(attribute => {
+          attribute.default = detailResult.data[attribute.key];
+          return attribute;
+        });
+      const collectionFields = models[modelName].filter(attribute => attribute.isCollection);
+      if (this._isMounted) {
+        this.setState({
+          detailFields:[],
+          detailCollections: [],
+        }, () => {this.setState({
+          detailFields: editableFields,
+          detailCollections: collectionFields,
+        })})
       }
     }).catch(error => {
       console.log(error);
@@ -115,12 +113,73 @@ class Knowledgebase extends React.Component {
     this.setState({editMode: !editMode})
   }
 
-  navigateToConceptDetail = (id) => {
-    this.props.history.push(`/admin/knowledgebase/concepts/${id}`);
+  navigateToDetail = (id) => {
+    {
+      const { paths, collectionIndex } = meta();
+      const detailPath = paths[collectionIndex] + "/" + id;
+      this.props.history.push("/admin/knowledgebase"+detailPath);
+    }
+    const { paths, model, detailIndex } = meta();
+    paths[detailIndex] !== '' && axios.get("/api/solverapp/knowledgebase" + paths[detailIndex])
+    .then(detailResult => {
+      const modelName = model[detailIndex];
+      const editableFields = models[modelName].filter(attribute => !attribute.isCollection)
+        .map(attribute => {
+          attribute.default = detailResult.data[attribute.key];
+          return attribute;
+        });
+      const collectionFields = models[modelName].filter(attribute => attribute.isCollection);
+      if (this._isMounted) {
+        this.setState({
+          detailFields:[],
+          detailCollections: [],
+        }, () => {this.setState({
+          detailFields: editableFields,
+          detailCollections: collectionFields,
+        })})
+      }
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+
+  navigateToCollection = (collectionKey) => {
+    {
+      const { paths, detailIndex } = meta();
+      const collectionPath = paths[detailIndex] + "/" + collectionKey;
+      this.props.history.push("/admin/knowledgebase"+collectionPath);
+    }
+    const { paths, model, collectionIndex } = meta();
+    axios.get("/api/solverapp/knowledgebase" + paths[collectionIndex])
+    .then(collectionResults => {
+      const modelName = model[collectionIndex];
+      const attributes = models[modelName].filter(attribute => !attribute.hiddenInTable);
+      const formattedCollectionData = collectionResults.data.reduce((obj, item) => {
+        obj[item._id] = attributes.map(attribute => (item[attribute.key]));
+        return obj;
+      }, {});
+      // prevent setting state if component is unmounted
+      if (this._isMounted) {
+        this.setState({
+          collectionData: formattedCollectionData,
+          collectionHeader: attributes.map(attribute => attribute.label),
+          collectionTitle: modelName+'s',
+          collectionDescription: 'List of concepts of the knowledgebase'
+        })
+      }
+    }).catch(error => {
+      console.log(error);
+    });
   }
 
   onRowClick = (id) => {
-    this.setState({selectedRow: id})
+    this.navigateToDetail(id);
+    this.setState({selectedRow: id});
+  }
+
+  onCollectionSelected = (key) => {
+    this.navigateToCollection(key)
+    this.setState({selectedCollection: key});
   }
 
   render() {
@@ -129,8 +188,11 @@ class Knowledgebase extends React.Component {
       collectionHeader, 
       collectionData, 
       collectionTitle,
-      collectionDescription, 
-      selectedRow
+      collectionDescription,
+      selectedRow,
+      detailFields,
+      detailCollections,
+      selectedCollection
     } = this.state;
     return (
       <div>
@@ -149,7 +211,14 @@ class Knowledgebase extends React.Component {
             />
           </GridItem>
           <GridItem xs={12} sm={12} md={4}>
-            <DetailView/>
+            <DetailView
+              title="Detail"
+              description="Here is a little bit detail"
+              fields={detailFields}
+              collections={detailCollections}
+              selectedCollection={selectedCollection}
+              onCollectionSelected={this.onCollectionSelected}
+            />
           </GridItem>
         </GridContainer>
       </div>
@@ -157,4 +226,4 @@ class Knowledgebase extends React.Component {
   }
 }
 
-export default withStyles(styles)(Knowledgebase);
+export default withStyles(styles)(withRouter(Knowledgebase));

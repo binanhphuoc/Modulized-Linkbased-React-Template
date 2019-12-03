@@ -74,12 +74,6 @@ const tableStyle = theme => ({
     outline: "none",
     verticalAlign: "middle"
   },
-  idLink: {
-    color: "primary",
-    '&:hover': {
-      color: "yellow",
-    },
-  }
 });
 
 export default tableStyle;

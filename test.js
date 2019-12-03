@@ -1,5 +1,3 @@
-
-
-for (let i = 0; i < 10; i++){
-    console.log((i+1)*2);
-}
+let i = 1;
+i -= -1
+console.log(i);

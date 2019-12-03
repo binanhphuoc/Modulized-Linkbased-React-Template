@@ -1,5 +1,4 @@
 import React from "react";
-import { useParams, withRouter } from "react-router-dom";
 import axios from "axios";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
@@ -48,6 +47,9 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  tableRow: {
+    cursor: "pointer"
   }
 });
 
@@ -86,7 +88,7 @@ class TableList extends React.Component {
                 tableData={tableData}
                 tableActions={[{
                     name: "Delete",
-                    icon: DeleteIcon
+                    icon: DeleteIcon,
                 },
                 {
                     name: "Edit",
@@ -97,6 +99,9 @@ class TableList extends React.Component {
                 editMode={editMode}
                 selectedRows={selectedRows}
                 hover
+                classes={{
+                  tableBodyRow: classes.tableRow
+                }}
                 />
             </CardBody>
         </Card>
@@ -104,4 +109,4 @@ class TableList extends React.Component {
   }
 }
 
-export default withStyles(styles)(withRouter(TableList));
+export default withStyles(styles)(TableList);
