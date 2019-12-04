@@ -1,6 +1,8 @@
 const meta = {
   model: ['',''],
   paths: ['',''],
+  viewOfSelection: '',
+  selection: '',
   detailIndex: 0,
   collectionIndex: 0,
 }
@@ -8,6 +10,8 @@ const meta = {
 const retrieveMetaFromPath = () => {
   let model = ['',''];
   let pathsToCall = ['',''];
+  let viewOfSelection = '';
+  let selection = '';
 
   // Retrieve links to call DB from path
   let path = window.location.pathname.replace("/admin/knowledgebase","").replace(/^\/|\/$/g, '');
@@ -22,12 +26,16 @@ const retrieveMetaFromPath = () => {
   if (pathTokens.length % 2 === 0) {
     model[0] = pathTokens[pathTokens.length - 2];
     model[1] = model[0];
+    viewOfSelection = "collection"
+    selection = pathTokens[pathTokens.length-1];
     collectionIndex = 0;
     detailIndex = 1;
   }
   else {
     model[0] = pathTokens.length >= 3 ? pathTokens[pathTokens.length - 3] : '';
     model[1] = pathTokens[pathTokens.length - 1];
+    viewOfSelection = "detail"
+    selection = pathTokens[pathTokens.length-1];
     collectionIndex = 1;
     detailIndex = 0;
   }
@@ -38,6 +46,8 @@ const retrieveMetaFromPath = () => {
   meta.paths = pathsToCall;
   meta.collectionIndex = collectionIndex;
   meta.detailIndex = detailIndex;
+  meta.viewOfSelection = viewOfSelection;
+  meta.selection = selection
 }
 
 const sendMeta = () => {

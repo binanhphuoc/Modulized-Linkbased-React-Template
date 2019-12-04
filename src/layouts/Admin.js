@@ -76,31 +76,6 @@ export default function Admin({ ...rest }) {
   };
   const getSidebarRoutes = () => {
     return routes;
-    // let path = window.location.pathname;
-    // let params;
-    // let matchedRoute  = Object.keys(routes).find(key => {
-    //   const matched = matchPath(path, {
-    //     path: layout + key,
-    //     exact: true,
-    //     strict: false
-    //   });
-    //   if (matched !== null) {
-    //     params = matched.params;
-    //   }
-    //   return matched !== null;
-    // });
-    // if (!matchedRoute)
-    //   return [];
-    // let { sidebar:sidebarItems } = routes[matchedRoute];
-    // let sidebarRoutes = sidebarItems.map(item => {
-    //   Object.entries(params).map(([paramKey, paramValue]) => {
-    //     item.path = item.path.replace(`:${paramKey}`, paramValue);
-    //     return item.path;
-    //   })
-    //   item.layout = layout;
-    //   return item;
-    // })
-    // return sidebarRoutes;
   };
   // initialize and destroy the PerfectScrollbar plugin
   React.useEffect(() => {

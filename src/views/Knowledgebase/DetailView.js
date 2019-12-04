@@ -166,6 +166,7 @@ export default function DetailView(props) {
             <Button color="warning">Update Profile</Button>
         </CardFooter>
     </Card>
+    { collections.length > 0 &&
     <Card>
         <CardBody>
             <List 
@@ -174,7 +175,7 @@ export default function DetailView(props) {
                 onItemSelected={onCollectionSelected}
             />
         </CardBody>
-    </Card>
+    </Card>}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
+import { Switch, Route, withRouter } from "react-router-dom";
 import axios from "axios";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
@@ -41,6 +41,15 @@ const styles = theme => ({
   }
 });
 
+const routes = [
+  '/concepts',
+  '/concepts/:concept_id',
+  '/concepts/:concept_id/attributes',
+  '/concepts/:concept_id/attributes/:attribute_id',
+  '/concepts/:concept_id/equations',
+  '/concepts/:concept_id/equations/:equation_id'
+]
+
 class Knowledgebase extends React.Component {
   _isMounted = false;
   state = {
@@ -53,13 +62,25 @@ class Knowledgebase extends React.Component {
     detailFields: [],
     editMode: false,
     selectedRow: null,
+    location: window.location.pathname
+  }
+
+  componentDidUpdate() {
+    // will be true
+    if (this.state.location !== this.props.location.pathname) {
+      console.log(this.state.location);
+      console.log(this.props.location.pathname);
+    }
   }
 
   componentDidMount() {
+    console.log("hello");
     this._isMounted = true;
-    if (window.location.pathname === "/admin/knowledgebase" || window.location.pathname === "/admin/knowledgebase/")
+    if (window.location.pathname === "/admin/knowledgebase" || window.location.pathname === "/admin/knowledgebase/"){
       this.props.history.push("/admin/knowledgebase/concepts");
-    const { paths, model, detailIndex, collectionIndex } = meta();
+      this.setState({location: "/admin/knowledgebase/concepts"})
+    }
+    const { paths, model, detailIndex, collectionIndex, viewOfSelection, selection } = meta();
     axios.get("/api/solverapp/knowledgebase" + paths[collectionIndex])
     .then(collectionResults => {
       const modelName = model[collectionIndex];
@@ -102,6 +123,14 @@ class Knowledgebase extends React.Component {
     }).catch(error => {
       console.log(error);
     });
+    if (this._isMounted) {
+      if (viewOfSelection === "collection"){
+        this.setState({selectedRow: selection});
+      }
+      else {
+        this.setState({selectedCollection: selection});
+      }
+    }
   }
   
   componentWillUnmount() {
@@ -118,6 +147,7 @@ class Knowledgebase extends React.Component {
       const { paths, collectionIndex } = meta();
       const detailPath = paths[collectionIndex] + "/" + id;
       this.props.history.push("/admin/knowledgebase"+detailPath);
+      this.setState({location: "/admin/knowledgebase"+detailPath})
     }
     const { paths, model, detailIndex } = meta();
     paths[detailIndex] !== '' && axios.get("/api/solverapp/knowledgebase" + paths[detailIndex])
@@ -148,6 +178,7 @@ class Knowledgebase extends React.Component {
       const { paths, detailIndex } = meta();
       const collectionPath = paths[detailIndex] + "/" + collectionKey;
       this.props.history.push("/admin/knowledgebase"+collectionPath);
+      this.setState({location:"/admin/knowledgebase"+collectionPath});
     }
     const { paths, model, collectionIndex } = meta();
     axios.get("/api/solverapp/knowledgebase" + paths[collectionIndex])
@@ -195,35 +226,33 @@ class Knowledgebase extends React.Component {
       selectedCollection
     } = this.state;
     return (
-      <div>
-        <GridContainer>
-          <GridItem xs={12} sm={12} md={12}>
-            Material-UI > Breadcrumbs > Expansion Panel for Sidebar > 
-          </GridItem>
-          <GridItem xs={12} sm={12} md={8}>
-            <CollectionView
-              tableTitle={collectionTitle}
-              tableDescription={collectionDescription}
-              tableHead={collectionHeader}
-              tableData={collectionData}
-              onRowClick={this.onRowClick}
-              selectedRows={selectedRow !== null ? [selectedRow] : []}
-            />
-          </GridItem>
-          <GridItem xs={12} sm={12} md={4}>
-            <DetailView
-              title="Detail"
-              description="Here is a little bit detail"
-              fields={detailFields}
-              collections={detailCollections}
-              selectedCollection={selectedCollection}
-              onCollectionSelected={this.onCollectionSelected}
-            />
-          </GridItem>
-        </GridContainer>
-      </div>
+      <GridContainer>
+        <GridItem xs={12} sm={12} md={12}>
+          Material-UI > Breadcrumbs > Expansion Panel for Sidebar > 
+        </GridItem>
+        <GridItem xs={12} sm={12} md={8}>
+          <CollectionView
+            tableTitle={collectionTitle}
+            tableDescription={collectionDescription}
+            tableHead={collectionHeader}
+            tableData={collectionData}
+            onRowClick={this.onRowClick}
+            selectedRows={selectedRow !== null ? [selectedRow] : []}
+          />
+        </GridItem>
+        <GridItem xs={12} sm={12} md={4}>
+          <DetailView
+            title="Detail"
+            description="Here is a little bit detail"
+            fields={detailFields}
+            collections={detailCollections}
+            selectedCollection={selectedCollection}
+            onCollectionSelected={this.onCollectionSelected}
+          />
+        </GridItem>
+      </GridContainer>
     );
   }
 }
 
-export default withStyles(styles)(withRouter(Knowledgebase));
+export default withStyles(styles)(Knowledgebase);
