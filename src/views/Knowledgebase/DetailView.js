@@ -168,7 +168,7 @@ export default function DetailView(props) {
     </Card>
     { collections.length > 0 &&
     <Card>
-        <CardBody>
+        <CardBody style={{paddingLeft: 0, paddingRight:0}}>
             <List 
                 listData={collections} 
                 selectedItem={selectedCollection}

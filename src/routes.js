@@ -24,6 +24,8 @@ import LocationOn from "@material-ui/icons/LocationOn";
 import Notifications from "@material-ui/icons/Notifications";
 import Unarchive from "@material-ui/icons/Unarchive";
 import Language from "@material-ui/icons/Language";
+import AccountTreeIcon from '@material-ui/icons/AccountTree';
+import FlareIcon from '@material-ui/icons/Flare';
 // core components/views for Admin layout
 import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
@@ -40,14 +42,14 @@ const adminRoutes = [
   {
     name: "Knowledgebase",
     component: Knowledgebase,
-    icon: Dashboard,
+    icon: FlareIcon,
     path: "/knowledgebase",
     layout: "/admin"
   },
   {
     name: "Inference Engine",
     component: UserProfile,
-    icon: Person,
+    icon: AccountTreeIcon,
     path: "/inference-engine",
     layout: "/admin"
   },

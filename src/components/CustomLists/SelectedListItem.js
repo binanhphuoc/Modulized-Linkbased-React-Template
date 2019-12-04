@@ -23,21 +23,24 @@ class SelectedListItem extends React.Component {
     const { classes, listData, selectedItem, onItemSelected } = this.props;
     return (
       <div className={classes.root}>
-        <List component="nav" aria-label="main mailbox folders">
-          {listData.map((itemMeta) => (
-            <ListItem
-              key={itemMeta.key}
-              button
-              selected={selectedItem === itemMeta.key}
-              onClick={() => {onItemSelected && onItemSelected(itemMeta.key)}}
-            >
-              {itemMeta.icon && 
-              <ListItemIcon>
-                {itemMeta.icon}
-              </ListItemIcon>}
-              <ListItemText primary={itemMeta.label} />
-            </ListItem>
+        <List style={{padding:0}} component="nav" aria-label="main mailbox folders">
+          {listData.map((itemMeta, index) => (
+            <div key={itemMeta.key}>
+              <ListItem
+                button
+                selected={selectedItem === itemMeta.key}
+                onClick={() => {onItemSelected && onItemSelected(itemMeta.key)}}
+              >
+                {itemMeta.icon && 
+                <ListItemIcon>
+                  <itemMeta.icon/>
+                </ListItemIcon>}
+                <h4 style={{margin:0, fontSize:"16px"}}>{itemMeta.label}</h4>
+              </ListItem>
+              {index !== (listData.length-1) && <Divider />}
+            </div>
           ))}
+          
         </List>
       </div>
     );

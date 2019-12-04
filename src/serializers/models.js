@@ -1,3 +1,6 @@
+import TextFormatIcon from '@material-ui/icons/TextFormat';
+import EmojiSymbolsIcon from '@material-ui/icons/EmojiSymbols';
+
 const Concept = [
     {
         key: "name",  // to extract data from API results
@@ -8,12 +11,14 @@ const Concept = [
     {
         key: "attributes",
         label: "Attributes",
+        icon: TextFormatIcon,
         hiddenInTable: true,
         isCollection: true
     },
     {
         key: "equations",
         label: "Equations",
+        icon: EmojiSymbolsIcon,
         hiddenInTable: true,
         isCollection: true
     }
