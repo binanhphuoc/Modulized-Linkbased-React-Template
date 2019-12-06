@@ -1,5 +1,21 @@
 import TextFormatIcon from '@material-ui/icons/TextFormat';
 import EmojiSymbolsIcon from '@material-ui/icons/EmojiSymbols';
+import StyledBreadcrumb from 'components/Breadcrumbs/StyledBreadcrumb';
+
+/*
+    Each model should be:
+    arrayOf(shape({
+        key: string,
+        label: string,
+        hiddenInTable: bool | false,
+        isCollection: bool | false,
+        collectionIcon: object | null
+        interface: shape({
+            component: object,
+            props: object
+        })
+    }))
+*/
 
 const Concept = [
     {
@@ -36,7 +52,13 @@ const Attribute = [
         label: "Description",
         hiddenInTable: false,
         isCollection: false
-    }
+    },
+    {
+        key: "type",
+        label: "Type",
+        hiddenInTable: false,
+        isCollection: false
+    },
 ];
 
 const Equation = [

@@ -1,10 +1,10 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { emphasize, withStyles, makeStyles } from '@material-ui/core/styles';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Chip from '@material-ui/core/Chip';
 import HomeIcon from '@material-ui/icons/Home';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Box from '@material-ui/core/Box';
+import Link from '@material-ui/core/Link';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 const StyledBreadcrumb = withStyles(theme => ({
@@ -15,6 +15,7 @@ const StyledBreadcrumb = withStyles(theme => ({
     fontWeight: theme.typography.fontWeightRegular,
     '&:hover, &:focus': {
       backgroundColor: theme.palette.grey[400],
+      cursor: "pointer"
     },
     '&:active': {
       boxShadow: theme.shadows[1],
@@ -40,7 +41,20 @@ const LinkBreadcrumb = withStyles(theme => ({
       color: "#0066FF"
     },
   },
-}))(Box);
+}))(Link);
+
+const Sublink = withStyles(theme => ({
+  root: {
+    display: "flex",
+    alignItems: "center",
+    color: 'inherit',
+    fontWeight: 'inherit',
+    '&:hover, &:focus': {
+      textDecoration: 'inherit',
+      color: 'inherit',
+    }
+  },
+}))(Link);
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -57,39 +71,53 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function handleClick(event) {
+function handleClick(event, path) {
   event.preventDefault();
-  console.info('You clicked a breadcrumb.');
+  console.info(path);
 }
 
-export default function CustomizedBreadcrumbs() {
+export default function CustomizedBreadcrumbs(props) {
   const classes = useStyles();
+  const { navigationData } = props;
   return (
     <Breadcrumbs className={classes.root} separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
-      <div className={classes.part}>
-        <StyledBreadcrumb
-          //component="a"
-          href="#"
-          label="Concepts"
-          icon={<HomeIcon fontSize="small" />}
-          onClick={handleClick}
-        />
-        <LinkBreadcrumb fontSize={15}>
-          Movement
-        </LinkBreadcrumb>
-      </div>
-      <div className={classes.part}>
-        <StyledBreadcrumb
-          //component="a"
-          href="#"
-          label="Equations"
-          icon={<HomeIcon fontSize="small" />}
-          onClick={handleClick}
-        />
-        <LinkBreadcrumb fontSize={15}>
-          Velocity vs Time
-        </LinkBreadcrumb>
-      </div>
+      {
+        navigationData.map((nav, index) => {
+          if (index % 2 !== 0)
+            return null;
+          const { icon: iconComponent } = navigationData[index];
+          return (
+            <div className={classes.part} key={index}>
+              <StyledBreadcrumb
+                component={Sublink}
+                href={navigationData[index].path ? navigationData[index].path : ''}
+                label={navigationData[index].label ? navigationData[index].label : ''}
+                icon={iconComponent ? <iconComponent fontSize="small" /> : null}
+              />
+              { index + 1 < navigationData.length && 
+                <LinkBreadcrumb 
+                href={navigationData[index+1].path ? navigationData[index+1].path : ''} 
+                fontSize={15}
+                >
+                  {navigationData[index+1].label}
+                </LinkBreadcrumb>
+              }
+            </div>
+          );
+        })
+      }
     </Breadcrumbs>
   );
+}
+
+CustomizedBreadcrumbs.defaultProps = {
+  navigationData: [],
+}
+
+CustomizedBreadcrumbs.propTypes = {
+  navigationData: PropTypes.arrayOf(PropTypes.shape({
+    path: PropTypes.string,
+    label: PropTypes.string,
+    icon: PropTypes.object
+  }))
 }

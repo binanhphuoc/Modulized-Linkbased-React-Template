@@ -13,6 +13,7 @@ import CollectionView from "./CollectionView.js";
 import DetailView from "./DetailView.js";
 import meta from "serializers/meta.js";
 import models from "serializers/models.js";
+import controller from "serializers/Knowledgebase/controller.js";
 
 import avatar from "assets/img/faces/marc.jpg";
 
@@ -47,12 +48,15 @@ class Knowledgebase extends React.Component {
     detailFields: [],
     editMode: false,
     selectedRow: null,
+    breadcrumbs: [],
     location: ''
   }
 
   componentDidUpdate() {
     // will be true
     if (this.state.location !== this.props.location.pathname) {
+      let serializer = controller(this.props.location.pathname);
+
       const { paths, model, detailIndex, collectionIndex, viewOfSelection, selection } = meta();
       axios.get("/api/solverapp/knowledgebase" + paths[collectionIndex])
       .then(collectionResults => {
@@ -149,7 +153,8 @@ class Knowledgebase extends React.Component {
       selectedRow,
       detailFields,
       detailCollections,
-      selectedCollection
+      selectedCollection,
+      breadcrumbs
     } = this.state;
     const {
       navigateToCollection,
@@ -158,7 +163,7 @@ class Knowledgebase extends React.Component {
     return (
       <GridContainer>
         <GridItem xs={12} sm={12} md={12}>
-          <Breadcrumbs/>
+          <Breadcrumbs navigationData={breadcrumbs}/>
         </GridItem>
         <GridItem xs={12} sm={12} md={8}>
           <CollectionView
