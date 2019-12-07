@@ -3,7 +3,8 @@ const Equation = [
         key: "name",
         label: "Name",
         hiddenInTable: false,
-        isCollection: false
+        isCollection: false,
+        isDetailTitle: true,
     },
     {
         key: "description",

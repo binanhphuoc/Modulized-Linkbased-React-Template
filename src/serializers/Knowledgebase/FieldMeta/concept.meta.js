@@ -7,6 +7,7 @@ const Concept = [
         label: "Name",    // to display on the table header and other UIs
         hiddenInTable: false,    // not shown in table
         isCollection: false,    // a collection will have a sidebar item to choose from
+        isDetailTitle: true,
     },
     {
         key: "attributes",

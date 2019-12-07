@@ -5,7 +5,8 @@ const Attribute = [
         key: "symbol",
         label: "Symbol",
         hiddenInTable: false,
-        isCollection: false
+        isCollection: false,
+        isDetailTitle: true,
     },
     {
         key: "description",

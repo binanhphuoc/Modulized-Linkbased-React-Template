@@ -27,11 +27,9 @@ import Language from "@material-ui/icons/Language";
 import AccountTreeIcon from '@material-ui/icons/AccountTree';
 import FlareIcon from '@material-ui/icons/Flare';
 // core components/views for Admin layout
-import DashboardPage from "views/Dashboard/Dashboard.js";
 import UserProfile from "views/UserProfile/UserProfile.js";
 import Knowledgebase from "views/Knowledgebase";
 import Typography from "views/Typography/Typography.js";
-import Icons from "views/Icons/Icons.js";
 import Maps from "views/Maps/Maps.js";
 import NotificationsPage from "views/Notifications/Notifications.js";
 import UpgradeToPro from "views/UpgradeToPro/UpgradeToPro.js";

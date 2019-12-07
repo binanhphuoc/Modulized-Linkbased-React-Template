@@ -14,6 +14,8 @@ import styles from "assets/jss/material-dashboard-react/components/customInputSt
 
 const useStyles = makeStyles(styles);
 
+let i = 0;
+
 export default function CustomInput(props) {
   const classes = useStyles();
   const {

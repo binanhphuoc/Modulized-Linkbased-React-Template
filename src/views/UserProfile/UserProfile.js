@@ -39,8 +39,6 @@ const useStyles = makeStyles(styles);
 
 export default function UserProfile() {
   const classes = useStyles();
-  let { id } = useParams();
-  console.log(id);
   return (
     <div>
       <GridContainer>

@@ -85,14 +85,14 @@ export default function CustomizedBreadcrumbs(props) {
         navigationData.map((nav, index) => {
           if (index % 2 !== 0)
             return null;
-          const { icon: iconComponent } = navigationData[index];
+          const { icon: IconComponent } = navigationData[index];
           return (
             <div className={classes.part} key={index}>
               <StyledBreadcrumb
                 component={Sublink}
                 href={navigationData[index].path ? navigationData[index].path : ''}
                 label={navigationData[index].label ? navigationData[index].label : ''}
-                icon={iconComponent ? <iconComponent fontSize="small" /> : null}
+                icon={IconComponent ? <IconComponent fontSize="small" /> : null}
               />
               { index + 1 < navigationData.length && 
                 <LinkBreadcrumb 

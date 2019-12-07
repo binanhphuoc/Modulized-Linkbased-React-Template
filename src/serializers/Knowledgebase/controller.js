@@ -1,10 +1,11 @@
 import axios from 'axios';
 
-import models from "../models";
+import models from "./FieldMeta";
 
 class SerializerError {
   
   static MODEL_NOT_FOUND = "model_not_found";
+  static NO_DETAIL_IN_PATH = "no_detail_in_path";
 
   constructor(code, message) {
     this.errorCode = code;
@@ -26,8 +27,11 @@ class SerializerBase {
     RESET_VIEWS: 100,
     NAVIGATE_DETAIL: 200,
     SWITCH_DETAIL: 210,
+    EMPTY_DETAIL: 220,
     NAVIGATE_COLLECTION: 300,
     SWITCH_COLLECTION: 310,
+    EMPTY_COLLECTION: 320,
+    IDLE: 400,
   }
   
   // Constructor will extract and validate Data into the attributes below
@@ -43,15 +47,24 @@ class SerializerBase {
     instance.valid = true;
     const nextMeta = instance.extractPath(path);
     if (!instance.is_valid()) {
+      instance.decision = SerializerBase.decision.IDLE;
       return instance;
     }
-    
+
     const { meta: prevMeta } = instance;
     const identicalPartsCount = instance.countSamePartsAtBeginning(prevMeta.parts, nextMeta.parts);
-
     const decision = instance.decide(identicalPartsCount, prevMeta.parts.length, nextMeta.parts.length);
-    instance.execute(decision, nextMeta);
+    instance.identicalPartsCount = identicalPartsCount;
+    instance.decision = decision;
+    instance.nextMeta = nextMeta;
     return instance;
+  }
+
+  fetchData = (setState) => {
+    if (!this.is_valid())
+      return;
+
+    this.execute(this.decision, this.nextMeta, this.identicalPartsCount, setState);
   }
 
   collectionName = (raw) => {
@@ -62,7 +75,7 @@ class SerializerBase {
   }
 
 	extractPath = (path) => {
-    let { instance } = SerializerBase;
+    let instance = this;
     path = path.replace("/admin/knowledgebase","").replace(/^\/|\/$/g, '');
 		let pathTokens = path.split("/");
 		if (pathTokens[0] === "") {
@@ -97,7 +110,7 @@ class SerializerBase {
   }
 
   is_valid = () => {
-    return SerializerBase.instance.valid;
+    return this.valid;
   }
 
   countSamePartsAtBeginning = (pA, pB) => {
@@ -110,29 +123,33 @@ class SerializerBase {
   }
 
   decide = (identicalPartsCount, prevLength, nextLength) => {
-    console.log(`${identicalPartsCount} ${prevLength} ${nextLength}`);
+    if (nextLength === 1)
+      return [
+        SerializerBase.decision.EMPTY_DETAIL,
+        SerializerBase.decision.NAVIGATE_COLLECTION
+      ]
     if (identicalPartsCount === prevLength && nextLength === prevLength + 1) {
       if (nextLength % 2 === 0)
-        return SerializerBase.decision.NAVIGATE_DETAIL;
+        return [SerializerBase.decision.NAVIGATE_DETAIL];
       else
-        return SerializerBase.decision.NAVIGATE_COLLECTION;
+        return [SerializerBase.decision.NAVIGATE_COLLECTION];
     }
 
     if (identicalPartsCount === nextLength && nextLength === prevLength - 1) {
       if (nextLength % 2 === 0)
-        return SerializerBase.decision.NAVIGATE_COLLECTION;
+        return [SerializerBase.decision.NAVIGATE_COLLECTION];
       else
-        return SerializerBase.decision.NAVIGATE_DETAIL;
+        return [SerializerBase.decision.NAVIGATE_DETAIL];
     }
 
     if (identicalPartsCount === nextLength-1 && nextLength === prevLength) {
       if (nextLength % 2 === 0)
-        return SerializerBase.decision.SWITCH_DETAIL;
+        return [SerializerBase.decision.SWITCH_DETAIL];
       else
-        return SerializerBase.decision.SWITCH_COLLECTION;
+        return [SerializerBase.decision.SWITCH_COLLECTION];
     }
 
-    return SerializerBase.decision.RESET_VIEWS;
+    return [SerializerBase.decision.RESET_VIEWS];
   }
 
   collection = (nextMeta) => new Promise((resolve, reject) => {
@@ -157,16 +174,18 @@ class SerializerBase {
         return obj;
       }, {});
       // prevent setting state if component is unmounted
-      const collectionHeader = attributes.map(attribute => ({
-        label: attribute.label
-      }));
+      // const collectionHeader = attributes.map(attribute => ({
+      //   label: attribute.label
+      // }));
+      const collectionHeader = attributes.map(attribute => attribute.label);
       const collectionTitle = modelName+'s';
       const collectionDescription = `List of ${modelName}s of the knowledgebase`;
       resolve({
         collectionData,
         collectionHeader,
         collectionTitle,
-        collectionDescription
+        collectionDescription,
+        selectedCollection: modelName.toLowerCase() + "s"
       });
     }).catch(error => {
       reject(error);
@@ -175,6 +194,12 @@ class SerializerBase {
 
   detail = (nextMeta) => new Promise((resolve, reject) => {
     const { parts } = nextMeta;
+    if (parts.length === 1) {
+      return reject(new SerializerError(
+        SerializerError.NO_DETAIL_IN_PATH,
+        `The path does not request any detail object. A detail object is one of ["Concept", "Attribute", "Equation"]. Usually, this is an internal error.`
+      ));
+    }
     let processingPart;
     processingPart = parts[parts.length-1].type === "detail" ? parts[parts.length-1] : parts[parts.length-2];
 
@@ -190,31 +215,102 @@ class SerializerBase {
           return attribute;
         });
       const collectionFields = models[modelName].filter(attribute => attribute.isCollection);
+      const detailTitle = detailResult.data[models[modelName].find(attribute => attribute.isDetailTitle).key];
       resolve({
         detailFields: editableFields,
         detailCollections: collectionFields,
+        detailTitle: detailTitle === '' ? detailResult.data._id : detailTitle,
+        detailDescription: modelName,
+        selectedRow: detailResult.data._id,
       });
     }).catch(error => {
       reject(error);
     });
   })
 
-  // Consider nextMeta.parts = []
-  execute = (decision, nextMeta) => {
-    console.log(decision);
-    console.log(nextMeta.parts);
-    SerializerBase.instance.meta = nextMeta;
-  }
-
-  breadcrumbs = () => {
-    const { instance } = SerializerBase;
-    if (!instance.is_valid())
-      return instance.is_valid();
-    const { parts } = instance.meta;
-    return parts.map(breadcrumbPart => ({
-      path: breadcrumbPart.redirectPath,
-      label: breadcrumbPart.model + "s"
+  breadcrumbs = (prevMeta, nextMeta, identicalPartsCount, optionalLastLabel) => new Promise((resolve, reject) => {
+    let prevParts = prevMeta.parts.slice(0, identicalPartsCount);
+    
+    let nextParts = nextMeta.parts.slice(identicalPartsCount);
+    nextParts = nextParts.map(part => new Promise((resolve, reject) => {
+      if (part.type === "detail") {
+        const { queryPath, model } = part;
+        axios.get(queryPath)
+        .then(detailResult => {
+          const label = detailResult.data[models[model].find(attribute => attribute.isDetailTitle).key];
+          resolve({
+            label: label === '' ? detailResult.data._id : label,
+            ...part
+          });
+        }).catch(err => {
+          reject(err);
+        })
+      }
+      else {
+        resolve({
+          label: part.model + "s",
+          ...part
+        })
+      }
     }));
+    
+    Promise.all(prevParts.concat(nextParts))
+    .then(parts => {
+      const breadcrumbs = parts.map((part, index) => ({
+        path: part.redirectPath,
+        icon: (part.type === "collection" && index > 0) ? models[parts[index-1].model].find(attribute => attribute.key === part.model.toLowerCase()+"s").icon : null,
+        label: part.label,
+      }));
+      parts = parts.map((part, index) => {
+        part.icon = breadcrumbs[index].icon;
+        return part;
+      })
+      resolve({
+        parts,
+        breadcrumbs
+      })
+    }).catch(error => {
+      reject(error);
+    });
+  })
+
+  // Consider nextMeta.parts = []
+  execute = (decisions, nextMeta, identicalPartsCount, setState) => {
+    try {
+      decisions.map(decision => {
+        if (decision === SerializerBase.decision.EMPTY_DETAIL) {
+          setState({
+            detailFields: [],
+            detailCollections: [],
+          })
+        }
+        if (decision === SerializerBase.decision.NAVIGATE_COLLECTION || decision === SerializerBase.decision.SWITCH_COLLECTION
+          || decision === SerializerBase.decision.RESET_VIEWS) {
+          this.collection(nextMeta)
+          .then(collectionResult => {
+            setState && setState(collectionResult);
+          }).catch(error => {
+            throw error;
+          });
+        }
+        if (decision === SerializerBase.decision.NAVIGATE_DETAIL || decision === SerializerBase.decision.SWITCH_DETAIL
+          || decision === SerializerBase.decision.RESET_VIEWS) {
+          this.detail(nextMeta)
+          .then(detailResult => {
+            setState && setState(detailResult);
+          }).catch(error => {
+            throw error;
+          });
+        }
+      })
+      this.breadcrumbs(this.meta, nextMeta, identicalPartsCount).then(results => {
+        const { parts, breadcrumbs } = results;
+        this.meta.parts = parts;
+        setState && setState({breadcrumbs});
+      })
+     } catch(error) {
+       console.log(error);
+     }
   }
 }
 
