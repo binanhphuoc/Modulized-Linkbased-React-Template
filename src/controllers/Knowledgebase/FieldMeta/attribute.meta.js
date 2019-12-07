@@ -14,12 +14,6 @@ const Attribute = [
         hiddenInTable: false,
         isCollection: false
     },
-    {
-        key: "type",
-        label: "Type",
-        hiddenInTable: false,
-        isCollection: false
-    },
 ];
 
 export default Attribute;

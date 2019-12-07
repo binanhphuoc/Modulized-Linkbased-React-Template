@@ -11,8 +11,7 @@ import Breadcrumbs from "components/Breadcrumbs/PopBreadcrumbs.js";
 
 import CollectionView from "./CollectionView.js";
 import DetailView from "./DetailView.js";
-import meta from "serializers/meta.js";
-import controller from "serializers/Knowledgebase/controller.js";
+import controller from "controllers/Knowledgebase";
 
 import avatar from "assets/img/faces/marc.jpg";
 
@@ -103,16 +102,16 @@ class Knowledgebase extends React.Component {
   }
 
   navigateToDetail = (rowId) => {
-    const { paths, collectionIndex } = meta();
-    const detailPath = paths[collectionIndex] + "/" + rowId;
-    this.props.history.push("/admin/knowledgebase"+detailPath);
+    const { controller } = this.state;
+    const detailPath = controller.currentCollectionPath() + "/" + rowId;
+    this.props.history.push(detailPath);
     this.forceUpdate();
   }
 
   navigateToCollection = (collectionKey) => {
-    const { paths, detailIndex } = meta();
-    const collectionPath = paths[detailIndex] + "/" + collectionKey;
-    this.props.history.push("/admin/knowledgebase"+collectionPath);
+    const { controller } = this.state;
+    const collectionPath = controller.currentDetailPath() + "/" + collectionKey;
+    this.props.history.push(collectionPath);
     this.forceUpdate();
   }
 

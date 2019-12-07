@@ -61,8 +61,9 @@ class SerializerBase {
   }
 
   fetchData = (setState) => {
-    if (!this.is_valid())
-      return;
+    if (!this.is_valid()){
+      throw this.error;
+    }
 
     this.execute(this.decision, this.nextMeta, this.identicalPartsCount, setState);
   }
@@ -256,11 +257,14 @@ class SerializerBase {
     
     Promise.all(prevParts.concat(nextParts))
     .then(parts => {
-      const breadcrumbs = parts.map((part, index) => ({
-        path: part.redirectPath,
-        icon: (part.type === "collection" && index > 0) ? models[parts[index-1].model].find(attribute => attribute.key === part.model.toLowerCase()+"s").icon : null,
-        label: part.label,
-      }));
+      const breadcrumbs = parts.map((part, index) => {
+        const collectionMeta = (part.type === "collection" && index > 0) && models[parts[index-1].model].find(attribute => attribute.key === part.model.toLowerCase()+"s");
+        return {
+          path: part.redirectPath,
+          icon: collectionMeta ? collectionMeta.icon : null,
+          label: part.label,
+        }
+      });
       parts = parts.map((part, index) => {
         part.icon = breadcrumbs[index].icon;
         return part;
@@ -311,6 +315,18 @@ class SerializerBase {
      } catch(error) {
        console.log(error);
      }
+  }
+
+  currentCollectionPath = () => {
+    return this.meta.parts[this.meta.parts.length-1].type === "collection" ?
+      this.meta.parts[this.meta.parts.length-1].redirectPath :
+      this.meta.parts[this.meta.parts.length-2].redirectPath;
+  }
+
+  currentDetailPath = () => {
+    return this.meta.parts[this.meta.parts.length-1].type === "detail" ?
+      this.meta.parts[this.meta.parts.length-1].redirectPath :
+      this.meta.parts[this.meta.parts.length-2].redirectPath;
   }
 }
 
