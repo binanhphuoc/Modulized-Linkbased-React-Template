@@ -1,7 +1,7 @@
 import TextFormatIcon from '@material-ui/icons/TextFormat';
 import EmojiSymbolsIcon from '@material-ui/icons/EmojiSymbols';
 
-const Concept = [
+const ConceptMeta = [
     {
         key: "name",  // to extract data from API results
         label: "Name",    // to display on the table header and other UIs
@@ -25,4 +25,4 @@ const Concept = [
     }
 ];
 
-export default Concept;
+export default ConceptMeta;

@@ -29,6 +29,7 @@ import FlareIcon from '@material-ui/icons/Flare';
 // core components/views for Admin layout
 import UserProfile from "views/UserProfile/UserProfile.js";
 import Knowledgebase from "views/Knowledgebase";
+import InferenceEngine from "views/InferenceEngine";
 import Typography from "views/Typography/Typography.js";
 import Maps from "views/Maps/Maps.js";
 import NotificationsPage from "views/Notifications/Notifications.js";
@@ -46,7 +47,7 @@ const adminRoutes = [
   },
   {
     name: "Inference Engine",
-    component: UserProfile,
+    component: InferenceEngine,
     icon: AccountTreeIcon,
     path: "/inference-engine",
     layout: "/admin"

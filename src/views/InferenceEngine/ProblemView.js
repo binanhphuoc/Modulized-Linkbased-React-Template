@@ -34,11 +34,6 @@ const styles = theme => ({
     marginBottom: "3px",
     textDecoration: "none"
   },
-  cardHeader: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
@@ -47,27 +42,16 @@ const styles = theme => ({
 });
 
 class DetailView extends React.Component {
-    state = {
-        editMode: false
-    }
-    toggleEditMode = () => {
-        const { editMode } = this.state;
-        this.setState({editMode: !editMode})
-    }
     render() {
         const { classes, title, description, fields, collections, selectedCollection, onCollectionSelected } = this.props;
-        const { editMode } = this.state;
         return (
             <div>
             <Card>
-                <CardHeader color="primary" className={classes.cardHeader}>
-                    <div>
-                        <h4 className={classes.cardTitleWhite}>{ title }</h4>
-                        <p className={classes.cardCategoryWhite}>{ description }</p>
-                    </div>
-                    <Button variant="contained" color="transparent" onClick={this.toggleEditMode}>
-                        {!editMode ? "Edit" : "Cancel"}
-                    </Button>
+                <CardHeader color="rose">
+                    <h4 className={classes.cardTitleWhite}>
+                        { title }
+                    </h4>
+                    <p className={classes.cardCategoryWhite}>{ description }</p>
                 </CardHeader>
                 <CardBody>
                     <GridContainer>
@@ -83,33 +67,19 @@ class DetailView extends React.Component {
                                 inputProps={{
                                     disabled: false,
                                     defaultValue: field.default,
-                                    readOnly:true
                                 }}
                             />
                         </GridItem>)
                     }
                     </GridContainer>
                 </CardBody>
-                {editMode && 
-                    <CardFooter>
-                        <Button
-                            color="transparent"
-                            onClick={this.toggleEditMode}
-                        >
-                            <div style={{fontWeight:"bold", fontSize: "14px"}}>
-                                Cancel
-                            </div>
-                        </Button>
-                        <Button 
-                            color="warning"
-                            onClick={this.update}
-                        >
-                            <div style={{fontWeight:"bold", fontSize: "14px"}}>
-                                Update
-                            </div>
-                        </Button>
-                    </CardFooter>
-                }
+                <CardFooter>
+                    <Button color="warning">
+                        <div style={{fontWeight:"bold", fontSize: "14px"}}>
+                            Run
+                        </div>
+                    </Button>
+                </CardFooter>
             </Card>
             { collections.length > 0 &&
             <Card>

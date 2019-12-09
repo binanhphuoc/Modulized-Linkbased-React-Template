@@ -3,19 +3,20 @@ import { Switch, Route, withRouter } from "react-router-dom";
 import axios from "axios";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
+import BugReport from "@material-ui/icons/BugReport";
+import Code from "@material-ui/icons/Code";
 
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
-import Breadcrumbs from "components/Breadcrumbs/PopBreadcrumbs.js";
+import Tabs from "components/CustomTabs/CustomTabs.js";
+import Button from "components/CustomButtons/Button.js";
+import Card from "components/Card/Card.js";
+import CardAvatar from "components/Card/CardAvatar.js";
+import CardBody from "components/Card/CardBody.js";
+import Stepper from "components/CustomStepper/CustomStepper.js";
 
-import CollectionView from "./CollectionView.js";
-import DetailView from "./DetailView.js";
-import meta from "serializers/meta.js";
-import models from "serializers/models.js";
-import serializer from "serializers";
-
-import avatar from "assets/img/faces/marc.jpg";
+import ProblemView from "./ProblemView.js";
 
 const styles = theme => ({
   cardCategoryWhite: {
@@ -45,6 +46,9 @@ class Knowledgebase extends React.Component {
 
   componentDidUpdate() {
     // will be true
+    // If route not found, reroute to ... and return
+
+    //
     if (this.state.location !== this.props.location.pathname) {
       // Handle data logic here based on this.props.location.pathname
 
@@ -54,6 +58,8 @@ class Knowledgebase extends React.Component {
 
   componentDidMount() {
     this._isMounted = true;
+    // Pre-check routes
+    // If route not found, reroute to ...
     this._isMounted && this.forceUpdate();
   }
   
@@ -65,27 +71,57 @@ class Knowledgebase extends React.Component {
     const { classes } = this.props;
     return (
       <GridContainer>
-        <GridItem xs={12} sm={12} md={12}>
-          <Breadcrumbs navigationData={breadcrumbs}/>
-        </GridItem>
         <GridItem xs={12} sm={12} md={8}>
-          <CollectionView
-            tableTitle={collectionTitle}
-            tableDescription={collectionDescription}
-            tableHead={collectionHeader}
-            tableData={collectionData}
-            onRowClick={navigateToDetail}
-            selectedRows={selectedRow !== null ? [selectedRow] : []}
-          />
+        <Tabs
+          //title="Tasks:"
+          headerColor="rose"
+          tabs={[
+            {
+              tabName: "Solution",
+              tabIcon: BugReport,
+              tabContent: (
+                <Stepper
+                  stepData={[{
+                    label: "Find a",
+                    content: <div>a = v / t</div>
+                  },{
+                    label: "Find m",
+                    content: "m = F / a"
+                  }]}
+                />
+              )
+            },
+            {
+              tabName: "History",
+              tabIcon: Code,
+              tabContent: (
+                <div>
+                  History
+                </div>
+              )
+            }
+          ]}
+        />
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
-          <DetailView
-            title="Detail"
-            description="Here is a little bit detail"
-            fields={detailFields}
-            collections={detailCollections}
-            selectedCollection={selectedCollection}
-            onCollectionSelected={navigateToCollection}
+          <ProblemView
+            title="Define Problem"
+            description="Enter a problem and select the domain for the solver"
+            fields={[{
+              key: "domain",
+              label: "Knowledge Domain",
+              default: null
+            },
+            {
+              key: "hypothesis",
+              label: "Given Facts",
+              default: "[(F,20), (v, 7), (t,8)]"
+            },
+            {
+              key: "goal",
+              label: "Variables to Solve for",
+              default: "[m]"
+            }]}
           />
         </GridItem>
       </GridContainer>

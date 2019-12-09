@@ -292,6 +292,7 @@ class SerializerBase {
           || decision === SerializerBase.decision.RESET_VIEWS) {
           this.collection(nextMeta)
           .then(collectionResult => {
+            // Should also update breadcrumbs when NAVIGATE_COLLECTION
             setState && setState(collectionResult);
           }).catch(error => {
             throw error;
@@ -301,6 +302,7 @@ class SerializerBase {
           || decision === SerializerBase.decision.RESET_VIEWS) {
           this.detail(nextMeta)
           .then(detailResult => {
+            // Should also update breadcrumbs when NAVIGATE_DETAIL
             setState && setState(detailResult);
           }).catch(error => {
             throw error;

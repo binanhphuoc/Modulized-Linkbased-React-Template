@@ -115,6 +115,14 @@ class Knowledgebase extends React.Component {
     this.forceUpdate();
   }
 
+  updateDetail = (data) => {
+    const { serializer } = this.state;
+    serializer.updateDetail(data)
+    .then(stateData => {
+
+    });
+  }
+
   render() {
     const { classes } = this.props;
     const { 
@@ -132,7 +140,8 @@ class Knowledgebase extends React.Component {
     } = this.state;
     const {
       navigateToCollection,
-      navigateToDetail
+      navigateToDetail,
+      updateDetail
     } = this;
     return (
       <GridContainer>
@@ -157,6 +166,7 @@ class Knowledgebase extends React.Component {
             collections={detailCollections}
             selectedCollection={selectedCollection}
             onCollectionSelected={navigateToCollection}
+            onUpdate={updateDetail}
           />
         </GridItem>
       </GridContainer>
