@@ -39,7 +39,8 @@ class SerializerBase {
 
     if (SerializerBase.instance === null) {
       this.meta = {
-        parts: []
+        parts: [],
+        state: {},
       };
       SerializerBase.instance = this;
     }
@@ -181,13 +182,15 @@ class SerializerBase {
       const collectionHeader = attributes.map(attribute => attribute.label);
       const collectionTitle = modelName+'s';
       const collectionDescription = `List of ${modelName}s of the knowledgebase`;
-      resolve({
+      const resolvedData = {
         collectionData,
         collectionHeader,
         collectionTitle,
         collectionDescription,
         selectedCollection: modelName.toLowerCase() + "s"
-      });
+      };
+      this.meta.state = Object.assign(this.meta.state, resolvedData);
+      resolve(resolvedData);
     }).catch(error => {
       reject(error);
     });
@@ -217,13 +220,16 @@ class SerializerBase {
         });
       const collectionFields = models[modelName].filter(attribute => attribute.isCollection);
       const detailTitle = detailResult.data[models[modelName].find(attribute => attribute.isDetailTitle).key];
-      resolve({
+      const resolvedData = {
+        detailPath: processingPart.redirectPath,
         detailFields: editableFields,
         detailCollections: collectionFields,
         detailTitle: detailTitle === '' ? detailResult.data._id : detailTitle,
         detailDescription: modelName,
         selectedRow: detailResult.data._id,
-      });
+      };
+      this.meta.state = Object.assign(this.meta.state, resolvedData);
+      resolve(resolvedData);
     }).catch(error => {
       reject(error);
     });
@@ -330,6 +336,43 @@ class SerializerBase {
       this.meta.parts[this.meta.parts.length-1].redirectPath :
       this.meta.parts[this.meta.parts.length-2].redirectPath;
   }
+
+  updateDetail = (fieldData) => new Promise((resolve, reject) => {
+    const detailIndex = this.meta.parts[this.meta.parts.length-1].type === "detail" ? 
+      (this.meta.parts.length-1) : (this.meta.parts.length-2);
+    const queryPath = this.meta.parts[detailIndex].queryPath;
+    const modelName = this.meta.parts[detailIndex].model;
+    let dataToUpdate = {};
+    fieldData.map(field => {
+      dataToUpdate[field.key] = field.default;
+      return field;
+    });
+    axios.patch(queryPath, dataToUpdate)
+    .then(detailResult => {
+      const label = detailResult.data[models[modelName].find(attribute => attribute.isDetailTitle).key];
+      this.meta.parts[detailIndex].label = label === '' ? detailResult.data._id : label;
+      const detailFields = models[modelName].filter(attribute => !attribute.isCollection)
+        .map(attribute => {
+          attribute.default = detailResult.data[attribute.key];
+          return attribute;
+        });
+      const detailTitle =  detailResult.data[models[modelName].find(attribute => attribute.isDetailTitle).key];
+      let { collectionData } = this.meta.state;
+      if (this.meta.state.selectedRow !== null && detailIndex === this.meta.parts.length - 1) {
+        collectionData[this.meta.state.selectedRow] = detailFields.map(attribute => attribute.default);
+      }
+      const resolvedData = {
+        collectionData,
+        detailFields,
+        detailTitle: detailTitle === '' ? detailResult.data._id : detailTitle,
+        breadcrumbs: this.meta.parts
+      };
+      this.meta.state = Object.assign(this.meta.state, resolvedData);
+      resolve(resolvedData)
+    }).catch(error => {
+      reject(error);
+    })
+  })
 }
 
 const Serializer = (path) => {

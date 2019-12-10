@@ -3,17 +3,17 @@ import { Switch, Route, withRouter } from "react-router-dom";
 import axios from "axios";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
+import AddAlert from "@material-ui/icons/AddAlert";
 
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Breadcrumbs from "components/Breadcrumbs/PopBreadcrumbs.js";
+import Snackbar from "components/Snackbar/Snackbar.js";
 
 import CollectionView from "./CollectionView.js";
 import DetailView from "./DetailView.js";
 import controller from "controllers/Knowledgebase";
-
-import avatar from "assets/img/faces/marc.jpg";
 
 const styles = theme => ({
   cardCategoryWhite: {
@@ -51,7 +51,13 @@ class Knowledgebase extends React.Component {
     selectedCollection: null,
     breadcrumbs: [],
     location: '',
+    detailPath: '',
     controller: null,
+    snackbar: {
+      status: false,
+      message: '',
+      color: 'info'
+    },
   };
 
   state = this.defaultState;
@@ -115,12 +121,40 @@ class Knowledgebase extends React.Component {
     this.forceUpdate();
   }
 
-  updateDetail = (data) => {
-    const { serializer } = this.state;
-    serializer.updateDetail(data)
+  updateDetail = (detailData) => {
+    const { controller } = this.state;
+    controller.updateDetail(detailData)
     .then(stateData => {
-
+      if (this._isMounted) {
+        let resetState = {};
+        Object.keys(stateData).map(key => {
+          resetState[key] = this.defaultState[key];
+        });
+        this.setState(resetState, () => {
+          this.setState(stateData, () => this.setSnackbar(
+            true,
+            "Successfully Updated.",
+            "success"
+          ));
+        })
+      }
+    }).catch(error => {
+      console.log(error);
     });
+  }
+
+  setSnackbar = (status, message, color) => {
+    this.setState({snackbar: {
+      status,
+      message,
+      color
+    }}, () => setTimeout(() => {
+      this.setState({snackbar: {
+        status: false,
+        message: message,
+        color
+      }});
+    }, 6000))
   }
 
   render() {
@@ -136,12 +170,15 @@ class Knowledgebase extends React.Component {
       detailFields,
       detailCollections,
       selectedCollection,
-      breadcrumbs
+      breadcrumbs,
+      detailPath,
+      snackbar
     } = this.state;
     const {
       navigateToCollection,
       navigateToDetail,
-      updateDetail
+      updateDetail,
+      setSnackbar
     } = this;
     return (
       <GridContainer>
@@ -160,15 +197,25 @@ class Knowledgebase extends React.Component {
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
           <DetailView
+            key={detailPath}
             title={detailTitle}
             description={detailDescription}
             fields={detailFields}
             collections={detailCollections}
             selectedCollection={selectedCollection}
             onCollectionSelected={navigateToCollection}
-            onUpdate={updateDetail}
+            onDetailUpdate={updateDetail}
           />
         </GridItem>
+        <Snackbar
+          place="br"
+          color={snackbar.color}
+          icon={AddAlert}
+          message={snackbar.message}
+          open={snackbar.status}
+          closeNotification={() => setSnackbar(false, '', 'info')}
+          close
+        />
       </GridContainer>
     );
   }

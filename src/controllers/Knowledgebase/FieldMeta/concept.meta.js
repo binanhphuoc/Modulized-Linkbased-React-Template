@@ -22,7 +22,7 @@ const ConceptMeta = [
         icon: EmojiSymbolsIcon,
         hiddenInTable: true,
         isCollection: true
-    }
+    },
 ];
 
 export default ConceptMeta;

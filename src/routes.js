@@ -82,14 +82,14 @@ const adminRoutes = [
   //   component: Maps,
   //   layout: "/admin"
   // },
-  // {
-  //   path: "/notifications",
-  //   name: "Notifications",
-  //   rtlName: "إخطارات",
-  //   icon: Notifications,
-  //   component: NotificationsPage,
-  //   layout: "/admin"
-  // },
+  {
+    path: "/notifications",
+    name: "Notifications",
+    rtlName: "إخطارات",
+    icon: Notifications,
+    component: NotificationsPage,
+    layout: "/admin"
+  },
   // {
   //   path: "/rtl-page",
   //   name: "RTL Support",

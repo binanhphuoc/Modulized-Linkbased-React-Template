@@ -25,8 +25,12 @@ export default function CustomInput(props) {
     labelProps,
     inputProps,
     error,
-    success
+    success,
   } = props;
+
+  let { inputComponent: InputComponent } = props;
+  if (!InputComponent)
+    InputComponent = Input;
 
   const labelClasses = classNames({
     [" " + classes.labelRootError]: error,
@@ -54,7 +58,7 @@ export default function CustomInput(props) {
           {labelText}
         </InputLabel>
       ) : null}
-      <Input
+      <InputComponent
         classes={{
           root: marginTop,
           disabled: classes.disabled,
@@ -79,5 +83,6 @@ CustomInput.propTypes = {
   inputProps: PropTypes.object,
   formControlProps: PropTypes.object,
   error: PropTypes.bool,
-  success: PropTypes.bool
+  success: PropTypes.bool,
+  inputComponent: PropTypes.object
 };
