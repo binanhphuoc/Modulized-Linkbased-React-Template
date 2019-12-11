@@ -89,10 +89,6 @@ class TableList extends React.Component {
                 tableActions={[{
                     name: "Delete",
                     icon: DeleteIcon,
-                },
-                {
-                    name: "Edit",
-                    icon: EditIcon
                 }]}
                 onActionClick={onActionClick}
                 onRowClick={onRowClick}

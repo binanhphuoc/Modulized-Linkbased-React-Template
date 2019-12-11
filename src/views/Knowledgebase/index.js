@@ -140,6 +140,11 @@ class Knowledgebase extends React.Component {
       }
     }).catch(error => {
       console.log(error);
+      this.setSnackbar(
+        true,
+        "Failed to Update Detail.",
+        "danger"
+      );
     });
   }
 
@@ -155,6 +160,23 @@ class Knowledgebase extends React.Component {
         color
       }});
     }, 6000))
+  }
+
+  onActionClick = (rowId, action) => {
+    const { controller } = this.state;
+    action === "Delete" && controller.deleteFromCollection(rowId)
+    .then((result) => {
+      this.setSnackbar(true, "Successfully Deleted.", "success");
+      if (result.redirectPath) {
+        this.props.history.push(result.redirectPath);
+        this.forceUpdate();
+      } else if (result.stateData) {
+        this.setState(result.stateData);
+      }
+    }).catch(err => {
+      console.log(err);
+      this.setSnackbar(true, "Failed to Delete Item.", "danger");
+    })
   }
 
   render() {
@@ -175,6 +197,7 @@ class Knowledgebase extends React.Component {
       snackbar
     } = this.state;
     const {
+      onActionClick,
       navigateToCollection,
       navigateToDetail,
       updateDetail,
@@ -191,6 +214,7 @@ class Knowledgebase extends React.Component {
             tableDescription={collectionDescription}
             tableHead={collectionHeader}
             tableData={collectionData}
+            onActionClick={onActionClick}
             onRowClick={navigateToDetail}
             selectedRows={selectedRow !== null ? [selectedRow] : []}
           />

@@ -17,8 +17,17 @@ import styles from "assets/jss/material-dashboard-react/components/tableStyle.js
 
 class CustomTable extends React.Component {
 
+  state = {
+    actionHover: false
+  }
+
+  toggleActionHover = () => {
+    this.setState({actionHover: !this.state.actionHover});
+  }
+
   render() {
     const { classes, tableHead, tableData, tableHeaderColor, tableActions, onRowClick, onActionClick, onIdClick, showId, editMode, hover, selectedRows } = this.props;
+    const { actionHover } = this.state;
     return (
       <div className={classes.tableResponsive}>
         <Table className={classes.table}>
@@ -57,7 +66,7 @@ class CustomTable extends React.Component {
                   className={classes.tableBodyRow}
                   hover={hover}
                   selected={selectedRows.includes(key)}
-                  onClick={() => { !editMode && onRowClick && onRowClick(key) }}
+                  onClick={() => { !actionHover && onRowClick && onRowClick(key) }}
                 >
                   { showId ? <TableCell 
                     className={classes.tableCell}
@@ -87,7 +96,11 @@ class CustomTable extends React.Component {
                           placement="top"
                           classes={{ tooltip: classes.tooltip }}
                         >
-                          <IconButton onClick={() => {onActionClick && onActionClick(key, action.name)}}>
+                          <IconButton
+                            onMouseEnter={this.toggleActionHover}
+                            onMouseLeave={this.toggleActionHover}
+                            onClick={() => {actionHover && onActionClick && onActionClick(key, action.name)}}
+                          >
                             <action.icon fontSize="small"/>
                           </IconButton>
                         </Tooltip>

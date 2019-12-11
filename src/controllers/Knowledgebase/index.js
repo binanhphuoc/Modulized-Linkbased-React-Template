@@ -373,6 +373,37 @@ class SerializerBase {
       reject(error);
     })
   })
+
+  deleteFromCollection = (id) => new Promise((resolve, reject) => {
+    const collectionIndex = this.meta.parts[this.meta.parts.length-1].type === "collection" ? 
+    (this.meta.parts.length-1) : (this.meta.parts.length-2);
+    const queryPath = this.meta.parts[collectionIndex].queryPath;
+    const redirectPath = this.meta.parts[collectionIndex].redirectPath;
+    axios.delete(queryPath+"/"+id)
+    .then(() => {
+      let { collectionData, selectedRow } = this.meta.state;
+      delete collectionData[id];
+      if (selectedRow === id) {
+        if (Object.keys(collectionData).length > 0)
+          resolve({
+            status: "success",
+            redirectPath: redirectPath + "/" + Object.keys(collectionData)[0]
+          });
+        else
+          resolve({
+            status: "success",
+            redirectPath
+          });
+      } else {
+        resolve({
+          status: "success",
+          stateData: {
+            collectionData
+          }
+        });
+      }
+    }).catch(err => reject(err));
+  })
 }
 
 const Serializer = (path) => {

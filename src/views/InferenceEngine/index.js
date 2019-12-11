@@ -97,6 +97,7 @@ class Knowledgebase extends React.Component {
               tabContent: (
                 <div>
                   History
+                  Phuoc Do dep trai
                 </div>
               )
             }
