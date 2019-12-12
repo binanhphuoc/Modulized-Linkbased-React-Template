@@ -1,19 +1,18 @@
 import React from "react";
-import axios from "axios";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
+
 // core components
-import GridItem from "components/Grid/GridItem.js";
-import GridContainer from "components/Grid/GridContainer.js";
 import Table from "components/Table/Table.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import Button from "components/CustomButtons/Button.js";
+
+import AddBoxIcon from '@material-ui/icons/AddBox';
 import DeleteIcon from '@material-ui/icons/Delete';
-import EditIcon from '@material-ui/icons/Edit';
-import { convertCompilerOptionsFromJson } from "typescript";
-import { Icon } from "@material-ui/core";
+import TuneIcon from '@material-ui/icons/Tune';
+import CloseIcon from '@material-ui/icons/Close';
 
 const styles = theme => ({
   cardCategoryWhite: {
@@ -47,10 +46,16 @@ const styles = theme => ({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center"
   },
   tableRow: {
     cursor: "pointer"
-  }
+  },
+  cardHeaderButton: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center"
+  },
 });
 
 class TableList extends React.Component {
@@ -66,7 +71,7 @@ class TableList extends React.Component {
   }
   
   render() {
-    const { classes, tableTitle, tableDescription, tableHead, tableData, onActionClick, onRowClick, selectedRows } = this.props;
+    const { classes, tableTitle, tableDescription, tableHead, tableData, onActionClick, onAddClick, onRowClick, selectedRows } = this.props;
     const { editMode } = this.state;
     return (
         <Card>
@@ -77,9 +82,16 @@ class TableList extends React.Component {
                     { tableDescription }
                 </p>
                 </div>
-                <Button variant="contained" color="transparent" onClick={this.toggleEditMode}>
-                {!editMode ? "Show Actions" : "Cancel"}
+                <div className={classes.cardHeaderButton}>
+                <Button round justIcon color="transparent" size="lg"
+                  onClick={onAddClick}
+                >
+                  <AddBoxIcon/>
                 </Button>
+                <Button round justIcon size="lg" color="transparent" onClick={this.toggleEditMode}>
+                    {!editMode ? <TuneIcon/> : <CloseIcon/>}
+                </Button>
+                </div>
             </CardHeader>
             <CardBody>
                 <Table

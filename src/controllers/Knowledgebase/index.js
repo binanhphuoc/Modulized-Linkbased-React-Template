@@ -284,7 +284,7 @@ class SerializerBase {
     });
   })
 
-  // Consider nextMeta.parts = []
+  // Functions used by Front-end Controller
   execute = (decisions, nextMeta, identicalPartsCount, setState) => {
     try {
       decisions.map(decision => {
@@ -403,6 +403,49 @@ class SerializerBase {
         });
       }
     }).catch(err => reject(err));
+  })
+
+  dialogPropsForCollection = () => {
+    const collectionIndex = this.meta.parts[this.meta.parts.length-1].type === "collection" ? 
+      (this.meta.parts.length-1) : (this.meta.parts.length-2);
+    return {
+      formDialogTitle: "Create New " + this.meta.parts[collectionIndex].model,
+      formDialogDescription: "Add a new " + this.meta.parts[collectionIndex].model + " to the Knowledgebase",
+      formDialogFields: models[this.meta.parts[collectionIndex].model].filter(att => !att.isCollection)
+    }
+  }
+
+  createItemFromCollection = (fieldValues) => new Promise((resolve, reject) => {
+    const collectionIndex = this.meta.parts[this.meta.parts.length-1].type === "collection" ? 
+      (this.meta.parts.length-1) : (this.meta.parts.length-2);
+    const queryPath = this.meta.parts[collectionIndex].queryPath;
+    const redirectPath = this.meta.parts[collectionIndex].redirectPath;
+    const modelName = this.meta.parts[collectionIndex].model;
+    axios.post(queryPath, fieldValues)
+    .then(response => {
+      let { collectionData } = this.meta.state;
+      let selectedRow;
+      if (response.data instanceof Array) {
+        selectedRow = response.data.map(newItem => {
+          const { _id, ...rest } = newItem;
+          collectionData[_id] = models[modelName].filter(att => !att.hiddenInTable).map(att => rest[att.key]);
+          return _id;
+        })[0];
+      }
+      else {
+        const { _id, ...rest } = response.data;
+        collectionData[_id] = models[modelName].filter(att => !att.hiddenInTable).map(att => rest[att.key]);
+        selectedRow = _id;
+      }
+      resolve({
+        status: "success",
+        redirectPath: redirectPath + "/" + selectedRow,
+        stateData: {
+          collectionData,
+          selectedRow
+        }
+      });
+    }).catch(error => reject(error));
   })
 }
 

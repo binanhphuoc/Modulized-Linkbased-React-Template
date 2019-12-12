@@ -2,9 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 // @material-ui/core components
 import { withStyles } from "@material-ui/core/styles";
-import InputLabel from "@material-ui/core/InputLabel";
-import Paper from "@material-ui/core/Paper";
-import TextField from '@material-ui/core/TextField';
+import EditIcon from "@material-ui/icons/Edit";
+import CloseIcon from '@material-ui/icons/Close';
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -12,7 +11,6 @@ import CustomInput from "components/CustomInput/CustomInput.js";
 import Button from "components/CustomButtons/Button.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
-import CardAvatar from "components/Card/CardAvatar.js";
 import CardBody from "components/Card/CardBody.js";
 import CardFooter from "components/Card/CardFooter.js";
 import List from "components/CustomLists/SelectedListItem.js";
@@ -38,6 +36,7 @@ const styles = theme => ({
 	display: "flex",
 	flexDirection: "row",
 	justifyContent: "space-between",
+	alignItems: "center"
   },
   textField: {
 	marginLeft: theme.spacing(1),
@@ -82,8 +81,11 @@ class DetailView extends React.Component {
 						<h4 className={classes.cardTitleWhite}>{ title }</h4>
 						<p className={classes.cardCategoryWhite}>{ description }</p>
 					</div>
-					<Button variant="contained" color="transparent" onClick={this.toggleEditMode}>
-						{!editMode ? "Edit" : "Cancel"}
+					<Button 
+						round justIcon color="transparent" size="lg"
+						onClick={this.toggleEditMode}
+					>
+						{!editMode ? <EditIcon/> : <CloseIcon/>}
 					</Button>
 				</CardHeader>
 				<CardBody>
@@ -125,9 +127,9 @@ class DetailView extends React.Component {
 						<Button 
 							color="warning"
 							onClick={() => {
-                onDetailUpdate && onDetailUpdate(fields);
-                this.toggleEditMode();
-              }}
+								onDetailUpdate && onDetailUpdate(fields);
+								this.toggleEditMode();
+							}}
 						>
 							<div style={{fontWeight:"bold", fontSize: "14px"}}>
 								Update

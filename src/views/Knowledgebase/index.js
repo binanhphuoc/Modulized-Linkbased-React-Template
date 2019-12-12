@@ -10,6 +10,7 @@ import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Breadcrumbs from "components/Breadcrumbs/PopBreadcrumbs.js";
 import Snackbar from "components/Snackbar/Snackbar.js";
+import FormDialog from "components/Dialog/FormDialog.js";
 
 import CollectionView from "./CollectionView.js";
 import DetailView from "./DetailView.js";
@@ -58,6 +59,10 @@ class Knowledgebase extends React.Component {
       message: '',
       color: 'info'
     },
+    formDialogOpen: false,
+    formDialogTitle: '',
+    formDialogDescription: '',
+    formDialogFields: [],
   };
 
   state = this.defaultState;
@@ -179,6 +184,34 @@ class Knowledgebase extends React.Component {
     })
   }
 
+  openAddDialogFromCollection = () => {
+    const { controller } = this.state;
+    const dialogProps = controller.dialogPropsForCollection();
+    this.setState(dialogProps, this.toggleDialogOpen);
+  }
+
+  addItemToCollection = (formValues) => {
+    this.toggleDialogOpen();
+    const { controller } = this.state;
+    controller.createItemFromCollection(formValues)
+    .then(result => {
+      this.setSnackbar(true, "Successfully Added New Item.", "success");
+      if (result.stateData) {
+        this.setState(result.stateData);
+      }
+      if (result.redirectPath) {
+        this.props.history.push(result.redirectPath);
+        this.forceUpdate();
+      }
+    }).catch(error => {
+      this.setSnackbar(true, "Failed to Add Item.", "danger");
+    })
+  }
+
+  toggleDialogOpen = () => {
+    this.setState({formDialogOpen: !this.state.formDialogOpen});
+  }
+
   render() {
     const { classes } = this.props;
     const { 
@@ -194,14 +227,19 @@ class Knowledgebase extends React.Component {
       selectedCollection,
       breadcrumbs,
       detailPath,
-      snackbar
+      snackbar,
+      formDialogOpen,
+      formDialogFields
     } = this.state;
     const {
       onActionClick,
       navigateToCollection,
       navigateToDetail,
       updateDetail,
-      setSnackbar
+      setSnackbar,
+      openAddDialogFromCollection,
+      addItemToCollection,
+      toggleDialogOpen
     } = this;
     return (
       <GridContainer>
@@ -216,6 +254,7 @@ class Knowledgebase extends React.Component {
             tableData={collectionData}
             onActionClick={onActionClick}
             onRowClick={navigateToDetail}
+            onAddClick={openAddDialogFromCollection}
             selectedRows={selectedRow !== null ? [selectedRow] : []}
           />
         </GridItem>
@@ -239,6 +278,15 @@ class Knowledgebase extends React.Component {
           open={snackbar.status}
           closeNotification={() => setSnackbar(false, '', 'info')}
           close
+        />
+        <FormDialog
+          open={formDialogOpen}
+          onClose={toggleDialogOpen}
+          title="Create New Concept"
+          description="Add a new Concept to the current Knowledgebase"
+          actionLabel="Create"
+          fields={formDialogFields}
+          onActionClick={addItemToCollection}
         />
       </GridContainer>
     );
