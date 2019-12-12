@@ -228,6 +228,8 @@ class Knowledgebase extends React.Component {
       breadcrumbs,
       detailPath,
       snackbar,
+      formDialogTitle,
+      formDialogDescription,
       formDialogOpen,
       formDialogFields
     } = this.state;
@@ -276,14 +278,14 @@ class Knowledgebase extends React.Component {
           icon={AddAlert}
           message={snackbar.message}
           open={snackbar.status}
-          closeNotification={() => setSnackbar(false, '', 'info')}
+          closeNotification={() => setSnackbar(false, snackbar.message, snackbar.color)}
           close
         />
         <FormDialog
           open={formDialogOpen}
           onClose={toggleDialogOpen}
-          title="Create New Concept"
-          description="Add a new Concept to the current Knowledgebase"
+          title={formDialogTitle}
+          description={formDialogDescription}
           actionLabel="Create"
           fields={formDialogFields}
           onActionClick={addItemToCollection}
